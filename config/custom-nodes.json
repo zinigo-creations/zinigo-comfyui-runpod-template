@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "nodes": [
+    {
+      "name": "ComfyUI-Manager",
+      "repo": "https://github.com/Comfy-Org/ComfyUI-Manager.git",
+      "directory": "ComfyUI-Manager",
+      "ref": "main",
+      "bakedIntoRunpodBase": true,
+      "requiredNodeTypes": []
+    },
+    {
+      "name": "Civicomfy",
+      "repo": "https://github.com/MoonGoblinDev/Civicomfy.git",
+      "directory": "Civicomfy",
+      "ref": "main",
+      "bakedIntoRunpodBase": true,
+      "requiredNodeTypes": []
+    },
+    {
+      "name": "rgthree-comfy",
+      "repo": "https://github.com/rgthree/rgthree-comfy.git",
+      "directory": "rgthree-comfy",
+      "ref": "main",
+      "bakedIntoRunpodBase": false,
+      "requiredNodeTypes": [
+        "Power Lora Loader (rgthree)",
+        "Any Switch (rgthree)",
+        "Fast Groups Muter (rgthree)"
+      ]
+    },
+    {
+      "name": "ComfyUI-Addoor",
+      "repo": "https://github.com/Eagle-CN/ComfyUI-Addoor.git",
+      "directory": "ComfyUI-Addoor",
+      "ref": "main",
+      "bakedIntoRunpodBase": false,
+      "requiredNodeTypes": [
+        "Width and height from aspect ratio 🪴"
+      ]
+    }
+  ]
+}

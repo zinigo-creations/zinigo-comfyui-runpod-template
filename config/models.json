@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "notes": [
+    "All bundled checkpoint downloads default to false. Enable with the matching DOWNLOAD_* environment variable.",
+    "Civitai modelVersionId values are used directly, because a version ID uniquely identifies the exact file/version to download.",
+    "Filenames intentionally use the readable model slug from the supplied URL."
+  ],
+  "models": [
+    {
+      "name": "AutismMix SDXL",
+      "enabledBy": "DOWNLOAD_AUTISMMIX_SDXL",
+      "defaultEnabled": false,
+      "source": "civitai",
+      "pageUrl": "https://civitai.com/models/288584/autismmix-sdxl?modelVersionId=324619",
+      "downloadHost": "https://civitai.com",
+      "versionId": "324619",
+      "filename": "autismmix-sdxl.safetensors",
+      "destination": "checkpoints",
+      "required": false
+    },
+    {
+      "name": "CyberRealistic Pony",
+      "enabledBy": "DOWNLOAD_CYBERREALISTIC_PONY",
+      "defaultEnabled": false,
+      "source": "civitai",
+      "pageUrl": "https://civitai.com/models/443821/cyberrealistic-pony?modelVersionId=2884631",
+      "downloadHost": "https://civitai.com",
+      "versionId": "2884631",
+      "filename": "cyberrealistic-pony.safetensors",
+      "destination": "checkpoints",
+      "required": false
+    },
+    {
+      "name": "Pony Realism",
+      "enabledBy": "DOWNLOAD_PONY_REALISM",
+      "defaultEnabled": false,
+      "source": "civitai",
+      "pageUrl": "https://civitai.com/models/372465/pony-realism?modelVersionId=1763661",
+      "downloadHost": "https://civitai.com",
+      "versionId": "1763661",
+      "filename": "pony-realism.safetensors",
+      "destination": "checkpoints",
+      "required": false
+    },
+    {
+      "name": "CyberRealistic Pony Semi Realistic",
+      "enabledBy": "DOWNLOAD_CYBERREALISTIC_PONY_SEMI_REALISTIC",
+      "defaultEnabled": false,
+      "source": "civitai",
+      "pageUrl": "https://civitai.com/models/709404/cyberrealistic-pony-semi-realistic?modelVersionId=2601141",
+      "downloadHost": "https://civitai.com",
+      "versionId": "2601141",
+      "filename": "cyberrealistic-pony-semi-realistic.safetensors",
+      "destination": "checkpoints",
+      "required": false
+    },
+    {
+      "name": "RI Mix Illustrious Anima",
+      "enabledBy": "DOWNLOAD_RI_MIX_ILLUSTRIOUS_ANIMA",
+      "defaultEnabled": false,
+      "source": "civitai",
+      "pageUrl": "https://civitai.com/models/996495/ri-mix-illustrious-anima?modelVersionId=1116628",
+      "downloadHost": "https://civitai.com",
+      "versionId": "1116628",
+      "filename": "ri-mix-illustrious-anima.safetensors",
+      "destination": "checkpoints",
+      "required": false
+    },
+    {
+      "name": "MiaoMiao 3D Harem",
+      "enabledBy": "DOWNLOAD_MIAOMIAO_3D_HAREM",
+      "defaultEnabled": false,
+      "source": "civitai",
+      "pageUrl": "https://civitai.com/models/431957/miaomiao-3d-harem?modelVersionId=728705",
+      "downloadHost": "https://civitai.com",
+      "versionId": "728705",
+      "filename": "miaomiao-3d-harem.safetensors",
+      "destination": "checkpoints",
+      "required": false
+    },
+    {
+      "name": "Babes",
+      "enabledBy": "DOWNLOAD_BABES",
+      "defaultEnabled": false,
+      "source": "civitai",
+      "pageUrl": "https://civitai.red/models/2220/babes?modelVersionId=2683764",
+      "downloadHost": "https://civitai.red",
+      "versionId": "2683764",
+      "filename": "babes.safetensors",
+      "destination": "checkpoints",
+      "required": false
+    },
+    {
+      "name": "Realism by Stable Yogi Pony",
+      "enabledBy": "DOWNLOAD_REALISM_BY_STABLE_YOGI_PONY",
+      "defaultEnabled": false,
+      "source": "civitai",
+      "pageUrl": "https://civitai.red/models/166609/realism-by-stable-yogi-pony?modelVersionId=2985392",
+      "downloadHost": "https://civitai.red",
+      "versionId": "2985392",
+      "filename": "realism-by-stable-yogi-pony.safetensors",
+      "destination": "checkpoints",
+      "required": false
+    },
+    {
+      "name": "4x UltraSharp Upscaler",
+      "enabledBy": "DOWNLOAD_4X_ULTRASHARP",
+      "defaultEnabled": false,
+      "source": "direct",
+      "url": "https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth",
+      "filename": "4x-UltraSharp.pth",
+      "destination": "upscale_models",
+      "required": false,
+      "note": "The bundled Pony workflow references this upscaler, but the upscale group starts muted. Enable this if you plan to use the 4x upscale branch."
+    }
+  ]
+}
