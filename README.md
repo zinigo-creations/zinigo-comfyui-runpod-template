@@ -15,7 +15,7 @@ It adds:
 - Required custom nodes for the bundled workflows
 - Civicomfy and ComfyUI-Manager
 - Boolean environment flags for checkpoint/model downloads
-- Neutral RunPod-facing aliases for Civitai/Hugging Face/FileBrowser auth
+- Public RunPod environment variables for Civitai/Hugging Face/FileBrowser auth
 - Arbitrary Civitai LoRA version ID downloading
 - Startup validation for workflow node coverage
 
@@ -38,54 +38,46 @@ Volume storage is intentionally `0 GB`. It is expensive and can be inconsistent.
 
 ## RunPod template environment
 
-Copy from `runpod-env.example` into the RunPod template UI. Use the neutral `ZINIGO_*` names there; startup maps them inside the container to the canonical names used by ComfyUI, Civicomfy, and the download scripts.
+Copy from `runpod-env.example` into the RunPod template UI. Startup maps the public auth names inside the container to the canonical names used by ComfyUI, Civicomfy, and the download scripts.
 
 ```text
-ZINIGO_CIVITAI_AUTH=__unset__
-ZINIGO_HF_AUTH=__unset__
-ZINIGO_FILEBROWSER_AUTH=__unset__
-ZINIGO_CIVITAI_LORAS=__unset__
-ZINIGO_COMFYUI_EXTRA_ARGS=__unset__
+CIVITAI_AUTH=__unset__
+HUGGINGFACE_AUTH=__unset__
+FILEBROWSER_AUTH=__unset__
+CIVITAI_LORA_VERSION_IDS=__unset__
+COMFYUI_ARGS=__unset__
 ```
 
 Set real values directly or use RunPod secret interpolation:
 
 ```text
-ZINIGO_CIVITAI_AUTH={{ RUNPOD_SECRET_civitai_api_key }}
-ZINIGO_HF_AUTH={{ RUNPOD_SECRET_huggingface_token }}
-ZINIGO_FILEBROWSER_AUTH={{ RUNPOD_SECRET_filebrowser_password }}
+CIVITAI_AUTH={{ RUNPOD_SECRET_civitai_api_key }}
+HUGGINGFACE_AUTH={{ RUNPOD_SECRET_huggingface_token }}
+FILEBROWSER_AUTH={{ RUNPOD_SECRET_filebrowser_password }}
 ```
 
-`ZINIGO_HF_AUTH` is optional unless you add gated Hugging Face URLs later.
+`HUGGINGFACE_AUTH` is optional unless you add gated Hugging Face URLs later.
 
-If `ZINIGO_FILEBROWSER_AUTH` is empty or left as `__unset__`, startup generates a random 16-character FileBrowser password and prints it in the Pod logs.
+If `FILEBROWSER_AUTH` is empty or left as `__unset__`, startup generates a random 16-character FileBrowser password and prints it in the Pod logs.
 
 ## Environment variables
 
-Alias priority is:
+Environment mapping is:
 
 ```text
-ZINIGO_CIVITAI_AUTH -> CIVITAI_API_KEY and CIVITAI_TOKEN
-ZINIGO_HF_AUTH -> HF_TOKEN
-ZINIGO_FILEBROWSER_AUTH -> FILEBROWSER_PASSWORD
-ZINIGO_CIVITAI_LORAS -> CIVITAI_LORA_VERSION_IDS
-ZINIGO_COMFYUI_EXTRA_ARGS -> COMFYUI_ARGS
+CIVITAI_AUTH -> CIVITAI_API_KEY and CIVITAI_TOKEN
+HUGGINGFACE_AUTH -> HF_TOKEN
+FILEBROWSER_AUTH -> FILEBROWSER_PASSWORD
+CIVITAI_LORA_VERSION_IDS is used directly
+COMFYUI_ARGS is used directly
 ```
 
-The older canonical env vars still work as fallbacks if supplied directly. Placeholder values are ignored when trimmed, case-insensitively: empty string, `__unset__`, `value`, `none`, `null`, and `undefined`.
+Placeholder values are ignored when trimmed, case-insensitively: empty string, `__unset__`, `value`, `none`, `null`, and `undefined`.
 
 ### Arbitrary LoRAs
 
 ```text
-ZINIGO_CIVITAI_LORAS=517898,534952,448977
-```
-
-Backward-compatible fallback aliases:
-
-```text
 CIVITAI_LORA_VERSION_IDS
-LORA_VERSION_IDS
-LORAS_IDS_TO_DOWNLOAD
 ```
 
 These must be Civitai **version IDs**, not model page IDs. They are downloaded to:
@@ -121,7 +113,7 @@ DOWNLOAD_4X_ULTRASHARP=false
 RUN_STARTUP_VALIDATION=true
 FAIL_ON_MODEL_DOWNLOAD_ERROR=true
 CUSTOM_NODES_UPDATE_ON_START=false
-ZINIGO_COMFYUI_EXTRA_ARGS=__unset__
+COMFYUI_ARGS=__unset__
 ```
 
 `CUSTOM_NODES_UPDATE_ON_START=false` is intentional. Rebuild the image when you want newer custom nodes. Do not make every Pod launch a moving target.
@@ -242,7 +234,7 @@ as GitHub repository secrets.
 ## Important notes
 
 - Civitai tokens are read from environment variables at runtime. They are not written into the image or printed in logs.
-- FileBrowser password is reset on each launch if `ZINIGO_FILEBROWSER_AUTH` or `FILEBROWSER_PASSWORD` is supplied.
+- FileBrowser password is reset on each launch if `FILEBROWSER_AUTH` is supplied.
 - If no FileBrowser password is configured, a random password is generated and printed.
 - Model downloads use `.part` files and rename after success.
 - Existing downloaded files are skipped.

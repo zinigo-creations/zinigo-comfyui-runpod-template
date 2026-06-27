@@ -204,12 +204,7 @@ def download_manifest_models(comfyui: Path, manifest_path: Path, dry_run: bool) 
 
 
 def lora_ids_from_env() -> list[str]:
-    raw = (
-        os.environ.get("CIVITAI_LORA_VERSION_IDS")
-        or os.environ.get("LORA_VERSION_IDS")
-        or os.environ.get("LORAS_IDS_TO_DOWNLOAD")
-        or ""
-    )
+    raw = os.environ.get("CIVITAI_LORA_VERSION_IDS") or ""
     ids = split_ids(raw)
     invalid = [item for item in ids if not item.isdigit()]
     if invalid:

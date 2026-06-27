@@ -51,7 +51,7 @@ first_real_env_value() {
 normalize_runpod_env_aliases() {
     local value
 
-    if value="$(first_real_env_value ZINIGO_CIVITAI_AUTH CIVITAI_API_KEY CIVITAI_TOKEN)"; then
+    if value="$(first_real_env_value CIVITAI_AUTH)"; then
         export CIVITAI_API_KEY="$value"
         export CIVITAI_TOKEN="$value"
         log "Civitai auth configured."
@@ -60,7 +60,7 @@ normalize_runpod_env_aliases() {
         log "Civitai auth not configured."
     fi
 
-    if value="$(first_real_env_value ZINIGO_HF_AUTH HF_TOKEN)"; then
+    if value="$(first_real_env_value HUGGINGFACE_AUTH)"; then
         export HF_TOKEN="$value"
         log "Hugging Face auth configured."
     else
@@ -68,7 +68,7 @@ normalize_runpod_env_aliases() {
         log "Hugging Face auth not configured."
     fi
 
-    if value="$(first_real_env_value ZINIGO_FILEBROWSER_AUTH FILEBROWSER_PASSWORD)"; then
+    if value="$(first_real_env_value FILEBROWSER_AUTH)"; then
         export FILEBROWSER_PASSWORD="$value"
         log "FileBrowser password configured."
     else
@@ -76,7 +76,7 @@ normalize_runpod_env_aliases() {
         log "FileBrowser password not configured; one will be generated."
     fi
 
-    if value="$(first_real_env_value ZINIGO_CIVITAI_LORAS CIVITAI_LORA_VERSION_IDS LORA_VERSION_IDS LORAS_IDS_TO_DOWNLOAD)"; then
+    if value="$(first_real_env_value CIVITAI_LORA_VERSION_IDS)"; then
         export CIVITAI_LORA_VERSION_IDS="$value"
         log "Civitai LoRA version IDs configured."
     else
@@ -84,7 +84,7 @@ normalize_runpod_env_aliases() {
         log "Civitai LoRA version IDs not configured."
     fi
 
-    if value="$(first_real_env_value ZINIGO_COMFYUI_EXTRA_ARGS COMFYUI_ARGS)"; then
+    if value="$(first_real_env_value COMFYUI_ARGS)"; then
         export COMFYUI_ARGS="$value"
         log "ComfyUI extra args configured."
     else
