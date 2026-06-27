@@ -2,6 +2,8 @@
 
 A custom RunPod ComfyUI template based on the official `runpod/comfyui:cuda12.8` image.
 
+Template version: `v0.1.3-cuda12.8`
+
 It keeps the useful RunPod services from the official image:
 
 - ComfyUI on `8188`
@@ -46,6 +48,7 @@ HUGGINGFACE_AUTH=__unset__
 FILEBROWSER_AUTH=__unset__
 CIVITAI_LORA_VERSION_IDS=__unset__
 COMFYUI_ARGS=__unset__
+TEMPLATE_VERSION=v0.1.3-cuda12.8
 ```
 
 Set real values directly or use RunPod secret interpolation:
@@ -58,7 +61,7 @@ FILEBROWSER_AUTH={{ RUNPOD_SECRET_filebrowser_password }}
 
 `HUGGINGFACE_AUTH` is optional unless you add gated Hugging Face URLs later.
 
-If `FILEBROWSER_AUTH` is empty or left as `__unset__`, startup generates a random 16-character FileBrowser password and prints it in the Pod logs.
+If `FILEBROWSER_AUTH` is empty, left as `__unset__`, or shorter than 12 characters, startup generates a random FileBrowser password and prints only the generated password in the Pod logs.
 
 ## Environment variables
 
@@ -91,20 +94,20 @@ These must be Civitai **version IDs**, not model page IDs. They are downloaded t
 All bundled checkpoint flags default to `false`:
 
 ```text
-DOWNLOAD_AUTISMMIX_SDXL=false
-DOWNLOAD_CYBERREALISTIC_PONY=false
-DOWNLOAD_PONY_REALISM=false
-DOWNLOAD_CYBERREALISTIC_PONY_SEMI_REALISTIC=false
-DOWNLOAD_RI_MIX_ILLUSTRIOUS_ANIMA=false
-DOWNLOAD_MIAOMIAO_3D_HAREM=false
-DOWNLOAD_BABES=false
-DOWNLOAD_REALISM_BY_STABLE_YOGI_PONY=false
+DOWNLOAD_AUTISMMIX_SDXL_7GB=false
+DOWNLOAD_CYBERREALISTIC_PONY_7GB=false
+DOWNLOAD_PONY_REALISM_7GB=false
+DOWNLOAD_CYBERREALISTIC_PONY_SEMI_REALISTIC_7GB=false
+DOWNLOAD_RI_MIX_ILLUSTRIOUS_ANIMA_7GB=false
+DOWNLOAD_MIAOMIAO_3D_HAREM_7GB=false
+DOWNLOAD_BABES_7GB=false
+DOWNLOAD_REALISM_BY_STABLE_YOGI_PONY_7GB=false
 ```
 
 Optional upscaler referenced by the bundled workflow:
 
 ```text
-DOWNLOAD_4X_ULTRASHARP=false
+DOWNLOAD_4X_ULTRASHARP_64MB=false
 ```
 
 ### Setup behavior
@@ -136,15 +139,15 @@ Civitai version IDs are used directly. Filenames are the readable slugs from the
 
 | Env flag | Filename |
 |---|---|
-| `DOWNLOAD_AUTISMMIX_SDXL` | `autismmix-sdxl.safetensors` |
-| `DOWNLOAD_CYBERREALISTIC_PONY` | `cyberrealistic-pony.safetensors` |
-| `DOWNLOAD_PONY_REALISM` | `pony-realism.safetensors` |
-| `DOWNLOAD_CYBERREALISTIC_PONY_SEMI_REALISTIC` | `cyberrealistic-pony-semi-realistic.safetensors` |
-| `DOWNLOAD_RI_MIX_ILLUSTRIOUS_ANIMA` | `ri-mix-illustrious-anima.safetensors` |
-| `DOWNLOAD_MIAOMIAO_3D_HAREM` | `miaomiao-3d-harem.safetensors` |
-| `DOWNLOAD_BABES` | `babes.safetensors` |
-| `DOWNLOAD_REALISM_BY_STABLE_YOGI_PONY` | `realism-by-stable-yogi-pony.safetensors` |
-| `DOWNLOAD_4X_ULTRASHARP` | `4x-UltraSharp.pth` |
+| `DOWNLOAD_AUTISMMIX_SDXL_7GB` | `autismmix-sdxl.safetensors` |
+| `DOWNLOAD_CYBERREALISTIC_PONY_7GB` | `cyberrealistic-pony.safetensors` |
+| `DOWNLOAD_PONY_REALISM_7GB` | `pony-realism.safetensors` |
+| `DOWNLOAD_CYBERREALISTIC_PONY_SEMI_REALISTIC_7GB` | `cyberrealistic-pony-semi-realistic.safetensors` |
+| `DOWNLOAD_RI_MIX_ILLUSTRIOUS_ANIMA_7GB` | `ri-mix-illustrious-anima.safetensors` |
+| `DOWNLOAD_MIAOMIAO_3D_HAREM_7GB` | `miaomiao-3d-harem.safetensors` |
+| `DOWNLOAD_BABES_7GB` | `babes.safetensors` |
+| `DOWNLOAD_REALISM_BY_STABLE_YOGI_PONY_7GB` | `realism-by-stable-yogi-pony.safetensors` |
+| `DOWNLOAD_4X_ULTRASHARP_64MB` | `4x-UltraSharp.pth` |
 
 ## Bundled custom nodes
 
@@ -191,7 +194,7 @@ make validate
 Docker build:
 
 ```bash
-docker build -t zinigocreations/zinigo-comfyui-runpod-template:v0.1.1-cuda12.8 .
+docker build -t zinigocreations/zinigo-comfyui-runpod-template:v0.1.3-cuda12.8 .
 ```
 
 Local run, if Docker has GPU access:
@@ -204,7 +207,7 @@ docker run --gpus all --rm -it \
   -p 2222:22 \
   --env-file runpod-env.example \
   -v comfy-workspace:/workspace \
-  zinigocreations/zinigo-comfyui-runpod-template:v0.1.1-cuda12.8
+  zinigocreations/zinigo-comfyui-runpod-template:v0.1.3-cuda12.8
 ```
 
 Open:
@@ -218,8 +221,8 @@ http://localhost:8188
 Manual build:
 
 ```bash
-docker build -t YOUR_DOCKERHUB_USERNAME/zinigo-comfyui-runpod-template:v0.1.1-cuda12.8 .
-docker push YOUR_DOCKERHUB_USERNAME/zinigo-comfyui-runpod-template:v0.1.1-cuda12.8
+docker build -t YOUR_DOCKERHUB_USERNAME/zinigo-comfyui-runpod-template:v0.1.3-cuda12.8 .
+docker push YOUR_DOCKERHUB_USERNAME/zinigo-comfyui-runpod-template:v0.1.3-cuda12.8
 ```
 
 Or use the included GitHub Action after setting:
@@ -234,9 +237,12 @@ as GitHub repository secrets.
 ## Important notes
 
 - Civitai tokens are read from environment variables at runtime. They are not written into the image or printed in logs.
-- FileBrowser password is reset on each launch if `FILEBROWSER_AUTH` is supplied.
+- Civitai auth is only sent to `civitai.com`, `www.civitai.com`, `civitai.red`, and `www.civitai.red`; redirected storage downloads do not receive the auth header.
+- FileBrowser password is reset on each launch if `FILEBROWSER_AUTH` is supplied and at least 12 characters.
 - If no FileBrowser password is configured, a random password is generated and printed.
+- If `FILEBROWSER_AUTH` is shorter than 12 characters, startup ignores it, generates a random password, and prints the generated password.
 - Model downloads use `.part` files and rename after success.
+- Startup prints enabled model downloads and an estimated download size before downloading.
 - Existing downloaded files are skipped.
 - `FAIL_ON_MODEL_DOWNLOAD_ERROR=true` means enabled model download failures stop startup before ComfyUI launches.
 - SSH, Jupyter, and FileBrowser start before model download/setup so you can still debug a failing Pod.

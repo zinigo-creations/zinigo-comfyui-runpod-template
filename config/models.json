@@ -8,7 +8,9 @@
   "models": [
     {
       "name": "AutismMix SDXL",
-      "enabledBy": "DOWNLOAD_AUTISMMIX_SDXL",
+      "enabledBy": "DOWNLOAD_AUTISMMIX_SDXL_7GB",
+      "approxSize": "7 GB",
+      "approxSizeGb": 7.0,
       "defaultEnabled": false,
       "source": "civitai",
       "pageUrl": "https://civitai.com/models/288584/autismmix-sdxl?modelVersionId=324619",
@@ -20,7 +22,9 @@
     },
     {
       "name": "CyberRealistic Pony",
-      "enabledBy": "DOWNLOAD_CYBERREALISTIC_PONY",
+      "enabledBy": "DOWNLOAD_CYBERREALISTIC_PONY_7GB",
+      "approxSize": "7 GB",
+      "approxSizeGb": 7.0,
       "defaultEnabled": false,
       "source": "civitai",
       "pageUrl": "https://civitai.com/models/443821/cyberrealistic-pony?modelVersionId=2884631",
@@ -32,7 +36,9 @@
     },
     {
       "name": "Pony Realism",
-      "enabledBy": "DOWNLOAD_PONY_REALISM",
+      "enabledBy": "DOWNLOAD_PONY_REALISM_7GB",
+      "approxSize": "7 GB",
+      "approxSizeGb": 7.0,
       "defaultEnabled": false,
       "source": "civitai",
       "pageUrl": "https://civitai.com/models/372465/pony-realism?modelVersionId=1763661",
@@ -44,7 +50,9 @@
     },
     {
       "name": "CyberRealistic Pony Semi Realistic",
-      "enabledBy": "DOWNLOAD_CYBERREALISTIC_PONY_SEMI_REALISTIC",
+      "enabledBy": "DOWNLOAD_CYBERREALISTIC_PONY_SEMI_REALISTIC_7GB",
+      "approxSize": "7 GB",
+      "approxSizeGb": 7.0,
       "defaultEnabled": false,
       "source": "civitai",
       "pageUrl": "https://civitai.com/models/709404/cyberrealistic-pony-semi-realistic?modelVersionId=2601141",
@@ -56,7 +64,9 @@
     },
     {
       "name": "RI Mix Illustrious Anima",
-      "enabledBy": "DOWNLOAD_RI_MIX_ILLUSTRIOUS_ANIMA",
+      "enabledBy": "DOWNLOAD_RI_MIX_ILLUSTRIOUS_ANIMA_7GB",
+      "approxSize": "7 GB",
+      "approxSizeGb": 7.0,
       "defaultEnabled": false,
       "source": "civitai",
       "pageUrl": "https://civitai.com/models/996495/ri-mix-illustrious-anima?modelVersionId=1116628",
@@ -68,7 +78,9 @@
     },
     {
       "name": "MiaoMiao 3D Harem",
-      "enabledBy": "DOWNLOAD_MIAOMIAO_3D_HAREM",
+      "enabledBy": "DOWNLOAD_MIAOMIAO_3D_HAREM_7GB",
+      "approxSize": "7 GB",
+      "approxSizeGb": 7.0,
       "defaultEnabled": false,
       "source": "civitai",
       "pageUrl": "https://civitai.com/models/431957/miaomiao-3d-harem?modelVersionId=728705",
@@ -80,7 +92,9 @@
     },
     {
       "name": "Babes",
-      "enabledBy": "DOWNLOAD_BABES",
+      "enabledBy": "DOWNLOAD_BABES_7GB",
+      "approxSize": "7 GB",
+      "approxSizeGb": 7.0,
       "defaultEnabled": false,
       "source": "civitai",
       "pageUrl": "https://civitai.red/models/2220/babes?modelVersionId=2683764",
@@ -92,7 +106,9 @@
     },
     {
       "name": "Realism by Stable Yogi Pony",
-      "enabledBy": "DOWNLOAD_REALISM_BY_STABLE_YOGI_PONY",
+      "enabledBy": "DOWNLOAD_REALISM_BY_STABLE_YOGI_PONY_7GB",
+      "approxSize": "7 GB",
+      "approxSizeGb": 7.0,
       "defaultEnabled": false,
       "source": "civitai",
       "pageUrl": "https://civitai.red/models/166609/realism-by-stable-yogi-pony?modelVersionId=2985392",
@@ -104,7 +120,9 @@
     },
     {
       "name": "4x UltraSharp Upscaler",
-      "enabledBy": "DOWNLOAD_4X_ULTRASHARP",
+      "enabledBy": "DOWNLOAD_4X_ULTRASHARP_64MB",
+      "approxSize": "64 MB",
+      "approxSizeGb": 0.064,
       "defaultEnabled": false,
       "source": "direct",
       "url": "https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth",

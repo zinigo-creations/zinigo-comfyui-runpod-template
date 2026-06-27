@@ -74,3 +74,29 @@ def test_placeholders_are_ignored_and_unset_canonical_vars():
         [ -z "${COMFYUI_ARGS+x}" ]
         """
     )
+
+
+def test_short_filebrowser_password_uses_generated_password():
+    run_bash(
+        r"""
+        set -euo pipefail
+        source ./start.sh
+
+        random_password() { printf 'GeneratedPass_123'; }
+        export FILEBROWSER_PASSWORD='short'
+
+        output_file="$(mktemp)"
+        prepare_filebrowser_password >"$output_file"
+        output="$(cat "$output_file")"
+
+        [ "$FILEBROWSER_ADMIN_PASSWORD" = 'GeneratedPass_123' ]
+        case "$output" in
+            *"FILEBROWSER_AUTH was set but is shorter than 12 characters."*) ;;
+            *) exit 1 ;;
+        esac
+        case "$output" in
+            *"short"*) exit 1 ;;
+            *) ;;
+        esac
+        """
+    )

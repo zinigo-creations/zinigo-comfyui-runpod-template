@@ -3,7 +3,7 @@ variable "IMAGE" {
 }
 
 variable "TAG" {
-  default = "v0.1.1-cuda12.8"
+  default = "v0.1.3-cuda12.8"
 }
 
 group "default" {

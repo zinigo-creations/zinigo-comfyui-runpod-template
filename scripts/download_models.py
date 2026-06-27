@@ -17,14 +17,27 @@ from common import bool_env, comfyui_dir, destination_path, load_json, split_ids
 
 USER_AGENT = "ZinigoRunPodComfyTemplate/1.0"
 CHUNK_SIZE = 1024 * 1024 * 4
+AUTH_CIVITAI_HOSTS = {"civitai.com", "www.civitai.com", "civitai.red", "www.civitai.red"}
+AUTH_HF_HOSTS = {"huggingface.co", "www.huggingface.co", "hf.co", "www.hf.co"}
+PLACEHOLDER_VALUES = {"", "__unset__", "value", "none", "null", "undefined"}
+
+
+def real_env_value(name: str) -> str | None:
+    value = os.environ.get(name)
+    if value is None:
+        return None
+    trimmed = value.strip()
+    if trimmed.lower() in PLACEHOLDER_VALUES:
+        return None
+    return trimmed
 
 
 def token_for_host(host: str) -> str | None:
     lowered = host.lower()
-    if "civitai" in lowered:
-        return os.environ.get("CIVITAI_API_KEY") or os.environ.get("CIVITAI_TOKEN")
-    if "huggingface" in lowered or "hf.co" in lowered:
-        return os.environ.get("HF_TOKEN")
+    if lowered in AUTH_CIVITAI_HOSTS:
+        return real_env_value("CIVITAI_API_KEY") or real_env_value("CIVITAI_TOKEN")
+    if lowered in AUTH_HF_HOSTS:
+        return real_env_value("HF_TOKEN")
     return None
 
 
@@ -41,6 +54,39 @@ def make_request(url: str, start_byte: int = 0) -> urllib.request.Request:
     if start_byte > 0:
         headers["Range"] = f"bytes={start_byte}-"
     return urllib.request.Request(url, headers=headers)
+
+
+class SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if code not in (301, 302, 303, 307, 308):
+            return None
+
+        method = req.get_method()
+        data = req.data
+        if code in (301, 302, 303) and method != "HEAD":
+            method = "GET"
+            data = None
+
+        new_headers = {
+            key: value
+            for key, value in req.headers.items()
+            if key.lower() not in {"authorization", "host", "content-length", "content-type"}
+        }
+        token = token_for_host(urllib.parse.urlparse(newurl).netloc)
+        if token:
+            new_headers["Authorization"] = f"Bearer {token}"
+
+        return urllib.request.Request(
+            newurl,
+            data=data,
+            headers=new_headers,
+            origin_req_host=req.origin_req_host,
+            unverifiable=True,
+            method=method,
+        )
+
+
+URL_OPENER = urllib.request.build_opener(SafeRedirectHandler)
 
 
 def content_disposition_filename(header: str | None) -> str | None:
@@ -88,7 +134,7 @@ def download(url: str, target_dir: Path, filename: str | None, fallback_name: st
                 start_byte = partial.stat().st_size if partial.exists() else 0
 
             req = make_request(url, start_byte=start_byte)
-            with urllib.request.urlopen(req, timeout=120) as response:
+            with URL_OPENER.open(req, timeout=120) as response:
                 status = getattr(response, "status", 200)
 
                 if status == 200 and start_byte and partial:
@@ -137,7 +183,20 @@ def download(url: str, target_dir: Path, filename: str | None, fallback_name: st
 
         except urllib.error.HTTPError as error:
             detail = error.read(400).decode("utf-8", errors="replace")
-            message = f"HTTP {error.code} while downloading {url}: {detail}"
+            if error.code in {401, 403} and "civitai" in urllib.parse.urlparse(url).netloc.lower():
+                message = (
+                    f"HTTP {error.code} while downloading {url}: {detail}\n"
+                    "Civitai returned 401/403.\n"
+                    "This usually means CIVITAI_AUTH is missing, invalid, or the model requires account access."
+                )
+            elif error.code == 400 and "Missing x-amz-content-sha256" in detail:
+                message = (
+                    f"HTTP {error.code} while downloading {url}: {detail}\n"
+                    "Storage download rejected an Authorization header.\n"
+                    "This should not happen. Check redirect auth stripping."
+                )
+            else:
+                message = f"HTTP {error.code} while downloading {url}: {detail}"
         except Exception as error:  # noqa: BLE001 - startup script should log every failure clearly
             message = f"{type(error).__name__} while downloading {url}: {error}"
 
@@ -165,9 +224,54 @@ def model_enabled(item: dict) -> bool:
     return bool_env(item["enabledBy"], bool(item.get("defaultEnabled", False)))
 
 
+def model_size_gb(item: dict) -> float:
+    size_gb = item.get("approxSizeGb")
+    if size_gb is None:
+        return 0.0
+    return float(size_gb)
+
+
+def model_size_label(item: dict) -> str:
+    return str(item.get("approxSize", "unknown size"))
+
+
+def enabled_model_items(manifest: dict) -> list[dict]:
+    return [item for item in manifest["models"] if model_enabled(item)]
+
+
+def print_download_summary(comfyui: Path, manifest: dict) -> None:
+    enabled = enabled_model_items(manifest)
+    total = sum(model_size_gb(item) for item in enabled)
+    free = shutil.disk_usage(comfyui).free / 1024 / 1024 / 1024
+
+    print("Enabled model downloads:")
+    if enabled:
+        for item in enabled:
+            print(f"  + {item['name']} ~{model_size_label(item)}")
+    else:
+        print("  - none")
+    print(f"Estimated enabled download size: ~{total:.1f} GB")
+    print(f"Available disk: {free:.1f} GB")
+    if total and total > free * 0.9:
+        print(
+            "WARNING: Enabled downloads may exceed available disk after accounting for workspace overhead.",
+            file=sys.stderr,
+        )
+
+    if any(item["source"] == "civitai" for item in enabled) and not (
+        real_env_value("CIVITAI_API_KEY") or real_env_value("CIVITAI_TOKEN")
+    ):
+        print(
+            "Civitai downloads are enabled, but CIVITAI_AUTH is not configured.\n"
+            "Set CIVITAI_AUTH or turn the download flags off.",
+            file=sys.stderr,
+        )
+
+
 def download_manifest_models(comfyui: Path, manifest_path: Path, dry_run: bool) -> list[str]:
     manifest = load_json(manifest_path)
     failures: list[str] = []
+    print_download_summary(comfyui, manifest)
 
     for item in manifest["models"]:
         enabled = model_enabled(item)
@@ -253,8 +357,12 @@ def main() -> int:
         raise SystemExit(f"ComfyUI directory does not exist: {args.comfyui}")
 
     failures = []
-    failures.extend(download_manifest_models(args.comfyui, args.manifest, args.dry_run))
-    failures.extend(download_loras(args.comfyui, args.dry_run))
+    try:
+        failures.extend(download_manifest_models(args.comfyui, args.manifest, args.dry_run))
+        failures.extend(download_loras(args.comfyui, args.dry_run))
+    except ValueError as error:
+        print(str(error), file=sys.stderr)
+        return 1
 
     if failures:
         print("\nModel setup failures:", file=sys.stderr)

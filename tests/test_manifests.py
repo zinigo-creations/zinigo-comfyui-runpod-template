@@ -17,6 +17,9 @@ def test_models_have_unique_env_flags_and_filenames():
     filenames = [item["filename"] for item in manifest["models"]]
     assert len(flags) == len(set(flags))
     assert len(filenames) == len(set(filenames))
+    assert all(item["approxSize"] for item in manifest["models"])
+    assert all(float(item["approxSizeGb"]) > 0 for item in manifest["models"])
+    assert all(flag.endswith(("GB", "MB")) for flag in flags)
 
 
 def test_workflow_node_types_are_mapped():

@@ -6,8 +6,8 @@ import re
 from pathlib import Path
 from typing import Any
 
-TRUE_VALUES = {"1", "true", "t", "yes", "y", "on"}
-FALSE_VALUES = {"0", "false", "f", "no", "n", "off", ""}
+TRUE_VALUES = {"1", "true", "yes", "on"}
+FALSE_VALUES = {"0", "false", "no", "off"}
 
 MODEL_DIRS = {
     "checkpoints": "models/checkpoints",
@@ -36,8 +36,8 @@ def bool_env(name: str, default: bool = False) -> bool:
         return False
 
     raise ValueError(
-        f"Invalid boolean value for {name}: {raw!r}. "
-        "Use true/false, yes/no, or 1/0."
+        f'Invalid value for {name}: "{raw}". '
+        "Use true or false."
     )
 
 
