@@ -15,7 +15,7 @@ It adds:
 - Required custom nodes for the bundled workflows
 - Civicomfy and ComfyUI-Manager
 - Boolean environment flags for checkpoint/model downloads
-- Secret-backed Civitai/Hugging Face auth
+- Neutral RunPod-facing aliases for Civitai/Hugging Face/FileBrowser auth
 - Arbitrary Civitai LoRA version ID downloading
 - Startup validation for workflow node coverage
 
@@ -36,33 +36,54 @@ Why `250 GB` container disk: the base image, ComfyUI workspace, Python environme
 
 Volume storage is intentionally `0 GB`. It is expensive and can be inconsistent. Enable a RunPod volume only when you specifically want persistence across Pods.
 
-## Required RunPod secrets
+## RunPod template environment
 
-Create these in RunPod Secrets and reference them in the template environment variables.
+Copy from `runpod-env.example` into the RunPod template UI. Use the neutral `ZINIGO_*` names there; startup maps them inside the container to the canonical names used by ComfyUI, Civicomfy, and the download scripts.
 
 ```text
-CIVITAI_API_KEY={{ RUNPOD_SECRET_civitai_api_key }}
-HF_TOKEN={{ RUNPOD_SECRET_huggingface_token }}
-FILEBROWSER_PASSWORD={{ RUNPOD_SECRET_filebrowser_password }}
+ZINIGO_CIVITAI_AUTH=__unset__
+ZINIGO_HF_AUTH=__unset__
+ZINIGO_FILEBROWSER_AUTH=__unset__
+ZINIGO_CIVITAI_LORAS=__unset__
+ZINIGO_COMFYUI_EXTRA_ARGS=__unset__
 ```
 
-`HF_TOKEN` is optional unless you add gated Hugging Face URLs later.
+Set real values directly or use RunPod secret interpolation:
 
-If `FILEBROWSER_PASSWORD` is empty, startup generates a random 16-character password and prints it in the Pod logs.
+```text
+ZINIGO_CIVITAI_AUTH={{ RUNPOD_SECRET_civitai_api_key }}
+ZINIGO_HF_AUTH={{ RUNPOD_SECRET_huggingface_token }}
+ZINIGO_FILEBROWSER_AUTH={{ RUNPOD_SECRET_filebrowser_password }}
+```
+
+`ZINIGO_HF_AUTH` is optional unless you add gated Hugging Face URLs later.
+
+If `ZINIGO_FILEBROWSER_AUTH` is empty or left as `__unset__`, startup generates a random 16-character FileBrowser password and prints it in the Pod logs.
 
 ## Environment variables
 
-Copy from `runpod-env.example` into the RunPod template.
+Alias priority is:
+
+```text
+ZINIGO_CIVITAI_AUTH -> CIVITAI_API_KEY and CIVITAI_TOKEN
+ZINIGO_HF_AUTH -> HF_TOKEN
+ZINIGO_FILEBROWSER_AUTH -> FILEBROWSER_PASSWORD
+ZINIGO_CIVITAI_LORAS -> CIVITAI_LORA_VERSION_IDS
+ZINIGO_COMFYUI_EXTRA_ARGS -> COMFYUI_ARGS
+```
+
+The older canonical env vars still work as fallbacks if supplied directly. Placeholder values are ignored when trimmed, case-insensitively: empty string, `__unset__`, `value`, `none`, `null`, and `undefined`.
 
 ### Arbitrary LoRAs
 
 ```text
-CIVITAI_LORA_VERSION_IDS=517898,534952,448977
+ZINIGO_CIVITAI_LORAS=517898,534952,448977
 ```
 
-Supported aliases:
+Backward-compatible fallback aliases:
 
 ```text
+CIVITAI_LORA_VERSION_IDS
 LORA_VERSION_IDS
 LORAS_IDS_TO_DOWNLOAD
 ```
@@ -100,7 +121,7 @@ DOWNLOAD_4X_ULTRASHARP=false
 RUN_STARTUP_VALIDATION=true
 FAIL_ON_MODEL_DOWNLOAD_ERROR=true
 CUSTOM_NODES_UPDATE_ON_START=false
-COMFYUI_ARGS=
+ZINIGO_COMFYUI_EXTRA_ARGS=__unset__
 ```
 
 `CUSTOM_NODES_UPDATE_ON_START=false` is intentional. Rebuild the image when you want newer custom nodes. Do not make every Pod launch a moving target.
@@ -178,7 +199,7 @@ make validate
 Docker build:
 
 ```bash
-docker build -t zinigofast/comfyui-runpod:dev-cuda12.8 .
+docker build -t zinigocreations/zinigo-comfyui-runpod-template:v0.1.1-cuda12.8 .
 ```
 
 Local run, if Docker has GPU access:
@@ -191,7 +212,7 @@ docker run --gpus all --rm -it \
   -p 2222:22 \
   --env-file runpod-env.example \
   -v comfy-workspace:/workspace \
-  zinigofast/comfyui-runpod:dev-cuda12.8
+  zinigocreations/zinigo-comfyui-runpod-template:v0.1.1-cuda12.8
 ```
 
 Open:
@@ -205,8 +226,8 @@ http://localhost:8188
 Manual build:
 
 ```bash
-docker build -t YOUR_DOCKERHUB_USERNAME/comfyui-runpod:v1-cuda12.8 .
-docker push YOUR_DOCKERHUB_USERNAME/comfyui-runpod:v1-cuda12.8
+docker build -t YOUR_DOCKERHUB_USERNAME/zinigo-comfyui-runpod-template:v0.1.1-cuda12.8 .
+docker push YOUR_DOCKERHUB_USERNAME/zinigo-comfyui-runpod-template:v0.1.1-cuda12.8
 ```
 
 Or use the included GitHub Action after setting:
@@ -220,9 +241,9 @@ as GitHub repository secrets.
 
 ## Important notes
 
-- Civitai tokens are read from environment variables at runtime. They are not written into the image.
-- FileBrowser password is reset on each launch if `FILEBROWSER_PASSWORD` is supplied.
-- If `FILEBROWSER_PASSWORD` is empty, a random password is generated and printed.
+- Civitai tokens are read from environment variables at runtime. They are not written into the image or printed in logs.
+- FileBrowser password is reset on each launch if `ZINIGO_FILEBROWSER_AUTH` or `FILEBROWSER_PASSWORD` is supplied.
+- If no FileBrowser password is configured, a random password is generated and printed.
 - Model downloads use `.part` files and rename after success.
 - Existing downloaded files are skipped.
 - `FAIL_ON_MODEL_DOWNLOAD_ERROR=true` means enabled model download failures stop startup before ComfyUI launches.

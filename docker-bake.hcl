@@ -1,9 +1,9 @@
 variable "IMAGE" {
-  default = "zinigofast/comfyui-runpod"
+  default = "zinigocreations/zinigo-comfyui-runpod-template"
 }
 
 variable "TAG" {
-  default = "dev-cuda12.8"
+  default = "v0.1.1-cuda12.8"
 }
 
 group "default" {

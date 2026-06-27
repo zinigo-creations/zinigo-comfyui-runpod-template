@@ -9,8 +9,6 @@ TEMPLATE_DIR="${ZINIGO_TEMPLATE_DIR:-/opt/zinigo-comfyui-template}"
 ARGS_FILE="/workspace/runpod-slim/comfyui_args.txt"
 SETUP_LOG="/workspace/runpod-slim/zinigo-template-setup.log"
 
-mkdir -p /workspace/runpod-slim
-
 log() {
     echo "[$(date -Iseconds)] $*"
 }
@@ -18,6 +16,81 @@ log() {
 random_password() {
     # 16 chars, alphanumeric + shell-safe special characters.
     LC_ALL=C tr -dc 'A-Za-z0-9@#%^+=_-' < /dev/urandom | head -c 16
+}
+
+normalized_env_value() {
+    local value="${1-}"
+    local lowered
+
+    value="$(printf '%s' "$value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    lowered="${value,,}"
+
+    case "$lowered" in
+        ""|"__unset__"|"value"|"none"|"null"|"undefined")
+            return 1
+            ;;
+    esac
+
+    printf '%s' "$value"
+}
+
+first_real_env_value() {
+    local name
+    local value
+
+    for name in "$@"; do
+        if value="$(normalized_env_value "${!name-}")"; then
+            printf '%s' "$value"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+normalize_runpod_env_aliases() {
+    local value
+
+    if value="$(first_real_env_value ZINIGO_CIVITAI_AUTH CIVITAI_API_KEY CIVITAI_TOKEN)"; then
+        export CIVITAI_API_KEY="$value"
+        export CIVITAI_TOKEN="$value"
+        log "Civitai auth configured."
+    else
+        unset CIVITAI_API_KEY CIVITAI_TOKEN
+        log "Civitai auth not configured."
+    fi
+
+    if value="$(first_real_env_value ZINIGO_HF_AUTH HF_TOKEN)"; then
+        export HF_TOKEN="$value"
+        log "Hugging Face auth configured."
+    else
+        unset HF_TOKEN
+        log "Hugging Face auth not configured."
+    fi
+
+    if value="$(first_real_env_value ZINIGO_FILEBROWSER_AUTH FILEBROWSER_PASSWORD)"; then
+        export FILEBROWSER_PASSWORD="$value"
+        log "FileBrowser password configured."
+    else
+        unset FILEBROWSER_PASSWORD
+        log "FileBrowser password not configured; one will be generated."
+    fi
+
+    if value="$(first_real_env_value ZINIGO_CIVITAI_LORAS CIVITAI_LORA_VERSION_IDS LORA_VERSION_IDS LORAS_IDS_TO_DOWNLOAD)"; then
+        export CIVITAI_LORA_VERSION_IDS="$value"
+        log "Civitai LoRA version IDs configured."
+    else
+        unset CIVITAI_LORA_VERSION_IDS
+        log "Civitai LoRA version IDs not configured."
+    fi
+
+    if value="$(first_real_env_value ZINIGO_COMFYUI_EXTRA_ARGS COMFYUI_ARGS)"; then
+        export COMFYUI_ARGS="$value"
+        log "ComfyUI extra args configured."
+    else
+        unset COMFYUI_ARGS
+        log "ComfyUI extra args not configured."
+    fi
 }
 
 setup_ssh() {
@@ -97,7 +170,7 @@ setup_filebrowser() {
         password="$(random_password)"
         log "FILEBROWSER_PASSWORD was empty. Generated FileBrowser admin password: ${password}"
     else
-        log "Using FILEBROWSER_PASSWORD from environment/secret."
+        log "Using configured FileBrowser admin password."
     fi
 
     if [ ! -f "$DB_FILE" ]; then
@@ -192,10 +265,18 @@ start_comfyui() {
     sleep infinity
 }
 
-setup_ssh
-export_runpod_env_vars
-setup_filebrowser
-start_jupyter
-initialize_comfyui
-run_bootstrap
-start_comfyui
+main() {
+    mkdir -p /workspace/runpod-slim
+    normalize_runpod_env_aliases
+    setup_ssh
+    export_runpod_env_vars
+    setup_filebrowser
+    start_jupyter
+    initialize_comfyui
+    run_bootstrap
+    start_comfyui
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

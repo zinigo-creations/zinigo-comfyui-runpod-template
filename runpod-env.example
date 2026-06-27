@@ -1,14 +1,9 @@
-# Secrets - in RunPod template UI, set these values using secret interpolation.
-# Example: CIVITAI_API_KEY={{ RUNPOD_SECRET_civitai_api_key }}
-CIVITAI_API_KEY=
-HF_TOKEN=
-FILEBROWSER_PASSWORD=
+ZINIGO_CIVITAI_AUTH=__unset__
+ZINIGO_HF_AUTH=__unset__
+ZINIGO_FILEBROWSER_AUTH=__unset__
+ZINIGO_CIVITAI_LORAS=__unset__
+ZINIGO_COMFYUI_EXTRA_ARGS=__unset__
 
-# Optional arbitrary Civitai LoRA version IDs. These always download to ComfyUI/models/loras.
-# Comma, space, or newline separated. Supported aliases: LORA_VERSION_IDS, LORAS_IDS_TO_DOWNLOAD.
-CIVITAI_LORA_VERSION_IDS=
-
-# Bundled checkpoints - all false by default.
 DOWNLOAD_AUTISMMIX_SDXL=false
 DOWNLOAD_CYBERREALISTIC_PONY=false
 DOWNLOAD_PONY_REALISM=false
@@ -17,12 +12,8 @@ DOWNLOAD_RI_MIX_ILLUSTRIOUS_ANIMA=false
 DOWNLOAD_MIAOMIAO_3D_HAREM=false
 DOWNLOAD_BABES=false
 DOWNLOAD_REALISM_BY_STABLE_YOGI_PONY=false
-
-# Optional upscaler referenced by the bundled workflow.
 DOWNLOAD_4X_ULTRASHARP=false
 
-# Setup behavior.
 RUN_STARTUP_VALIDATION=true
 FAIL_ON_MODEL_DOWNLOAD_ERROR=true
 CUSTOM_NODES_UPDATE_ON_START=false
-COMFYUI_ARGS=

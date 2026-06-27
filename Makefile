@@ -1,5 +1,5 @@
-IMAGE ?= zinigofast/comfyui-runpod
-TAG ?= dev-cuda12.8
+IMAGE ?= zinigocreations/zinigo-comfyui-runpod-template
+TAG ?= v0.1.1-cuda12.8
 
 .PHONY: validate build run shell zip
 
