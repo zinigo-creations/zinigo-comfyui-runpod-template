@@ -157,7 +157,7 @@ def download(url: str, target_dir: Path, filename: str | None, fallback_name: st
                 last_print = 0.0
 
                 assert partial is not None
-                with partial.open(mode + "b") as handle:
+                with partial.open(mode) as handle:
                     while True:
                         chunk = response.read(CHUNK_SIZE)
                         if not chunk:
